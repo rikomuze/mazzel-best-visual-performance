@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MAZZEL Best Visual 9 - Performance Costume</title>
+
+  <meta property="og:title" content="MAZZEL Best Visual 9 - Performance Costume">
+  <meta property="og:description" content="画像から好きなアーティストショットを選んでベストビジュを作れます">
+  <meta property="og:image" content="og.jpg">
+
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 24px 16px 40px;
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      text-align: center;
+      color: #111;
+    }
+
+    .top-link {
+      margin: 0 auto 18px;
+      max-width: 980px;
+      text-align: left;
+    }
+
+    .top-link a {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff;
+      color: #111;
+      font-size: 14px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .top-link a:hover {
+      opacity: 0.8;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: 42px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .buttons {
+      margin-bottom: 28px;
+    }
+
+    button {
+      padding: 10px 16px;
+      margin: 0 6px;
+      border: none;
+      border-radius: 8px;
+      background: #111;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      border-radius: 10px;
+      display: block;
+      background: #eee;
+    }
+
+    .card.group-card img {
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .card p {
+      margin: 12px 0 4px;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+    }
+
+    #picker {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    #picker.hidden {
+      display: none;
+    }
+
+    .picker-box {
+      width: min(920px, 92vw);
+      max-height: 82vh;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px;
+      box-sizing: border-box;
+    }
+
+    .picker-box h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    #options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    #options img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      border-radius: 10px;
+      cursor: pointer;
+      display: block;
+      transition: transform 0.15s ease;
+      background: #eee;
+    }
+
+    #options img:hover {
+      transform: scale(1.02);
+    }
+
+    #options img.group-option {
+      aspect-ratio: 4 / 3;
+    }
+
+    @media (max-width: 900px) {
+      h1 {
+        font-size: 34px;
+      }
+
+      .grid {
+        gap: 14px;
+      }
+
+      .card p {
+        font-size: 16px;
+      }
+
+      #options {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 20px 12px 32px;
+      }
+
+      .top-link {
+        text-align: center;
+        margin-bottom: 16px;
+      }
+
+      .top-link a {
+        font-size: 13px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .card {
+        border-radius: 10px;
+        padding: 6px;
+      }
+
+      .card img {
+        border-radius: 8px;
+      }
+
+      .card p {
+        margin: 8px 0 2px;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+      }
+
+      #options {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .picker-box {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="top-link">
+    <a href="https://rikomuze.github.io/mazzel-best-visual/" target="_blank" rel="noopener">
+      第一弾はこちら
+    </a>
+  </div>
+
+  <h1>MAZZEL Best Visual 9</h1>
+  <p class="subtitle">パフォーマンス衣装編｜画像をタップして好きなアーティストショットを選んでください</p>
+
+  <div class="buttons">
+    <button onclick="randomize()">ランダム</button>
+    <button onclick="saveImage()">画像保存</button>
+  </div>
+
+  <div class="grid" id="capture">
+    <div class="card" onclick="openPicker(this, 'kairyu')">
+      <img src="images/kairyu/01.png" alt="KAIRYU">
+      <p>KAIRYU</p>
+    </div>
+
+    <div class="card" onclick="openPicker(this, 'naoya')">
+      <img src="images/naoya/01.png" alt="NAOYA">
+      <p>NAOYA</p>
+    </div>
+
+    <div class="card" onclick="openPicker(this, 'ran')">
+      <img src="images/ran/01.png" alt="RAN">
+      <p>RAN</p>
+    </div>
+
+    <div class="card" onclick="openPicker(this, 'seito')">
+      <img src="images/seito/01.png" alt="SEITO">
+      <p>SEITO</p>
+    </div>
+
+    <div class="card group-card" onclick="openPicker(this, 'group')">
+      <img src="images/group/01.png" alt="MAZZEL">
+      <p>MAZZEL</p>
+    </div>
+
+    <div class="card" onclick="openPicker(this, 'ryuki')">
+      <img src="images/ryuki/01.png" alt="RYUKI">
+      <p>RYUKI</p>
+    </div>
+
+    <div class="card" onclick="openPicker(this, 'takuto')">
+      <img src="images/takuto/01.png" alt="TAKUTO">
+      <p>TAKUTO</p>
+    </div>
+
+    <div class="card" onclick="openPicker(this, 'hayato')">
+      <img src="images/hayato/01.png" alt="HAYATO">
+      <p>HAYATO</p>
+    </div>
+
+    <div class="card" onclick="openPicker(this, 'eiki')">
+      <img src="images/eiki/01.png" alt="EIKI">
+      <p>EIKI</p>
+    </div>
+  </div>
+
+  <div id="picker" class="hidden">
+    <div class="picker-box">
+      <h2>画像を選んでください</h2>
+      <div id="options"></div>
+      <button onclick="closePicker()">閉じる</button>
+    </div>
+  </div>
+
+  <script>
+    const imageCounts = {
+      kairyu: 12,
+      naoya: 12,
+      ran: 12,
+      seito: 12,
+      group: 9,
+      ryuki: 12,
+      takuto: 12,
+      hayato: 12,
+      eiki: 12
+    };
+
+    let currentCard = null;
+
+    function fileName(num) {
+      return String(num).padStart(2, "0") + ".png";
+    }
+
+    function openPicker(card, member) {
+      currentCard = card;
+
+      const options = document.getElementById("options");
+      options.innerHTML = "";
+
+      const count = imageCounts[member] || 0;
+
+      for (let i = 1; i <= count; i++) {
+        const img = document.createElement("img");
+        img.src = "images/" + member + "/" + fileName(i);
+        img.alt = member + " " + i;
+
+        if (member === "group") {
+          img.classList.add("group-option");
+        }
+
+        img.onclick = function () {
+          currentCard.querySelector("img").src = this.src;
+          closePicker();
+        };
+
+        options.appendChild(img);
+      }
+
+      document.getElementById("picker").classList.remove("hidden");
+    }
+
+    function closePicker() {
+      document.getElementById("picker").classList.add("hidden");
+    }
+
+    function randomize() {
+      const cards = document.querySelectorAll(".card");
+
+      cards.forEach((card) => {
+        const onclickText = card.getAttribute("onclick");
+        const match = onclickText.match(/'([^']+)'/);
+        if (!match) return;
+
+        const member = match[1];
+        const count = imageCounts[member] || 1;
+        const num = Math.floor(Math.random() * count) + 1;
+
+        card.querySelector("img").src = "images/" + member + "/" + fileName(num);
+      });
+    }
+
+    function saveImage() {
+      const target = document.getElementById("capture");
+
+      html2canvas(target, {
+        backgroundColor: "#f3f3f3",
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "mazzel-best-visual-9-performance.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+  </script>
+
+</body>
+</html>
