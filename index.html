@@ -316,17 +316,17 @@
   </div>
 
   <script>
-    const imageCounts = {
-      kairyu: 12,
-      naoya: 12,
-      ran: 12,
-      seito: 12,
-      group: 9,
-      ryuki: 12,
-      takuto: 12,
-      hayato: 12,
-      eiki: 12
-    };
+   const imageCounts = {
+  kairyu: 11,
+  naoya: 11,
+  ran: 11,
+  seito: 11,
+  group: 9,
+  ryuki: 11,
+  takuto: 11,
+  hayato: 11,
+  eiki: 11
+};
 
     let currentCard = null;
 
@@ -382,19 +382,19 @@
       });
     }
 
-    function saveImage() {
-      const target = document.getElementById("capture");
+  function saveImage() {
+  const target = document.getElementById("capture");
 
-      html2canvas(target, {
-        backgroundColor: "#f3f3f3",
-        scale: 2
-      }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "mazzel-best-visual-9-performance.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    }
+  html2canvas(target, {
+    backgroundColor: "#f3f3f3",
+    scale: 2
+  }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "mazzel-best-visual-9-performance.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+}
   </script>
 
 </body>
