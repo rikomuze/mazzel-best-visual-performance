@@ -382,18 +382,39 @@
       });
     }
 
-  function saveImage() {
+async function saveImage() {
   const target = document.getElementById("capture");
 
-  html2canvas(target, {
+  const canvas = await html2canvas(target, {
     backgroundColor: "#f3f3f3",
     scale: 2
-  }).then(canvas => {
-    const link = document.createElement("a");
-    link.download = "mazzel-best-visual-9-performance.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
   });
+
+  canvas.toBlob(async (blob) => {
+    const file = new File(
+      [blob],
+      "mazzel-best-visual-9-performance.png",
+      { type: "image/png" }
+    );
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: "MAZZEL Best Visual 9",
+          text: "MAZZEL Best Visual 9を作ったよ"
+        });
+      } catch (error) {
+        console.log("共有がキャンセルされました", error);
+      }
+    } else {
+      const link = document.createElement("a");
+      link.download = "mazzel-best-visual-9-performance.png";
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+  }, "image/png");
 }
   </script>
 
