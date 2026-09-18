@@ -518,7 +518,7 @@ var imageCounts = {
 };
 
 /* ---------- 状態 ---------- */
-var selection = cells.map(function(){ return 1; }); // 各コマの選択番号(初期は01)
+var selection = cells.map(function(cell){ return cell.member === "group" ? 15 : "new1"; }); // 初期表示は最新画像
 var currentCellIndex = null;
 var lastFocused = null;
 
