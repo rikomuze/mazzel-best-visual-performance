@@ -559,7 +559,24 @@ function init() {
 }
 
 function fileName(num) { return String(num).padStart(2, "0") + ".png"; }
-function srcFor(index) { return "images/" + cells[index].member + "/" + fileName(selection[index]); }
+function isNewChoice(choice) { return typeof choice === "string" && choice.indexOf("new") === 0; }
+function srcForChoice(member, choice) {
+  if (isNewChoice(choice)) return "images/new-20260918/" + member + ".jpg";
+  return "images/" + member + "/" + fileName(choice);
+}
+function objectPositionFor(choice) {
+  if (choice === "new1") return "center top";
+  if (choice === "new2") return "center center";
+  if (choice === "new3") return "center bottom";
+  return "center top";
+}
+function choicesFor(member) {
+  var existing = [15];
+  for (var i = 1; i <= 14; i++) existing.push(i);
+  if (member === "group") return existing;
+  return ["new1", "new2", "new3"].concat(existing);
+}
+function srcFor(index) { return srcForChoice(cells[index].member, selection[index]); }
 function formatDate(d) {
   return d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0");
 }
@@ -578,6 +595,7 @@ function renderSheet() {
 
     var img = document.createElement("img");
     img.src = srcFor(index);
+    img.style.objectPosition = objectPositionFor(selection[index]);
     img.alt = cell.name;
 
     var no = document.createElement("span");
@@ -600,7 +618,10 @@ function renderSheet() {
 
 function updateCellImage(index) {
   var img = sheetGrid.children[index] && sheetGrid.children[index].querySelector("img");
-  if (img) img.src = srcFor(index);
+  if (img) {
+    img.src = srcFor(index);
+    img.style.objectPosition = objectPositionFor(selection[index]);
+  }
 }
 
 /* ---------- ピッカー ---------- */
@@ -611,21 +632,16 @@ function openPicker(index) {
   options.innerHTML = "";
 
   var member = cells[index].member;
-  var count = imageCounts[member] || 0;
-  // 新しいアー写は既存の15.pngに上書きしてください。
-  // 候補一覧では15番を先頭に出し、その後に01〜14を並べます。
-  var order = [];
-  if (count >= 15) order.push(15);
-  for (var i = 1; i <= count; i++) {
-    if (i !== 15) order.push(i);
-  }
+  // 新規3枚は「01 → 02 → 03」、その後に従来の15 → 01〜14。
+  var order = choicesFor(member);
   order.forEach(function (num) {
     (function (num) {
       var button = document.createElement("button");
       button.type = "button";
       button.className = "photo-option" + (member === "group" ? " wide" : "");
       var img = document.createElement("img");
-      img.src = "images/" + member + "/" + fileName(num);
+      img.src = srcForChoice(member, num);
+      img.style.objectPosition = objectPositionFor(num);
       img.alt = cells[index].name + " " + num;
       img.loading = "lazy";
       img.onerror = function(){ button.style.display = "none"; };
@@ -651,8 +667,8 @@ function closePicker() {
 /* ---------- ランダム ---------- */
 function randomize() {
   cells.forEach(function (cell, index) {
-    var count = imageCounts[cell.member] || 1;
-    selection[index] = Math.floor(Math.random() * count) + 1;
+    var choices = choicesFor(cell.member);
+    selection[index] = choices[Math.floor(Math.random() * choices.length)];
     updateCellImage(index);
   });
   setStatus("ランダムに並べました。", true);
@@ -674,21 +690,29 @@ function canvasToBlob(canvas) {
     }, "image/png");
   });
 }
-function drawCoverTop(ctx, img, x, y, w, h) {
+function drawCoverTop(ctx, img, x, y, w, h, choice) {
   if (!img) {
     ctx.fillStyle = "#cbc1b4";
     ctx.fillRect(x, y, w, h);
     return;
   }
-  var s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-  var dw = img.naturalWidth * s, dh = img.naturalHeight * s;
-  var dx = x + (w - dw) / 2;   // 左右センター
-  var dy = y;                  // 上寄せ(プレビューのobject-position:center topと同じ)
+
+  var sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+  if (isNewChoice(choice)) {
+    sh = img.naturalHeight / 3;
+    var part = Number(choice.replace("new", "")) || 1;
+    sy = (part - 1) * sh;
+  }
+
+  var s = Math.max(w / sw, h / sh);
+  var dw = sw * s, dh = sh * s;
+  var dx = x + (w - dw) / 2;
+  var dy = y;
   ctx.save();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   ctx.clip();
-  ctx.drawImage(img, dx, dy, dw, dh);
+  ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
   ctx.restore();
 }
 
@@ -772,7 +796,7 @@ async function createSheetCanvas() {
     ctx.restore();
 
     var pad = 8;
-    drawCoverTop(ctx, images[index], x + pad, y + pad, cw - pad * 2, h - pad * 2);
+    drawCoverTop(ctx, images[index], x + pad, y + pad, cw - pad * 2, h - pad * 2, selection[index]);
 
     ctx.save();
     ctx.strokeStyle = "rgba(64,56,47,.07)";
